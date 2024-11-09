@@ -17,6 +17,10 @@ struct PlaceDetailView: View {
             mapView
                 .frame(height: 400)
             
+            VStack{
+                Text(place.name)
+            }
+            
         }
         .frame(maxHeight: .infinity,alignment: .top)
     }
