@@ -11,9 +11,10 @@ import SwiftData
 struct PlaceListView: View {
     
     @Query(sort: \Place.name,animation: .easeIn) private var places : [Place]
-    @ObservedObject var navigationManager: NavigationManager
+    @Environment(\.router) private var navigationManager
     
     @State var searchableText: String = ""
+    @Namespace var namespace
     
     private var predicate: Predicate<Place> {
         #Predicate<Place> {
@@ -25,20 +26,15 @@ struct PlaceListView: View {
         }
     }
     
-    init(navigationManager: NavigationManager) {
-        self.navigationManager = navigationManager
-    }
-    
+
     var body: some View {
-        NavigationStack(path: $navigationManager.routes) {
-            
             VStack(alignment: .center, spacing: 16){
                 ScrollView(.vertical) {
                     LazyVStack(alignment: .center, spacing: 16) {
-                        ForEach(places) { place in
+                        ForEach(Place.previewPlaces) { place in
                             PlaceCellView(place: place)
                                 .onTapGesture {
-                                    navigationManager.push(to: .placeDetails(place: place))
+                                    navigationManager?.push(to: .placeDetails(place: place,namespace: namespace))
                                 }
                         }
                         withAnimation {
@@ -61,13 +57,17 @@ struct PlaceListView: View {
                     .padding(.horizontal, 16)
                 }
             }
-            .navigationDestination(for: Route.self) { $0 }
             .searchable(text: $searchableText)
-        }
+            .navigationTitle("Places")
     }
 }
 
 #Preview {
-    PlaceListView(navigationManager: NavigationManager())
-        .modelContainer(Place.previewContainer!)
+    @Previewable @StateObject var navigationManager: NavigationManager = .init()
+    NavigationStack(path: $navigationManager.routes) {
+        PlaceListView()
+            .navigationDestination(for: Route.self, destination: { $0 })
+            .modelContainer(Place.previewContainer!)
+    }
+    
 }
