@@ -15,7 +15,7 @@ struct NenmaraApp: App {
     
     var body: some Scene {
         WindowGroup {
-            PlaceListView(navigationManager: router)
+            CustomTabView(navigationManager: router)
         }
         .modelContainer(for: Place.self)
     }
